@@ -1,5 +1,8 @@
 import bs4
 import requests
+import collections
+
+WeatherReport = collections.namedtuple('Weather_Report', 'condition temperature unit location')
 
 
 def print_header():
@@ -32,22 +35,29 @@ def parse_html(html):
     scale = soup.find(class_='wu-unit-temperature').find(class_='wu-label').get_text().strip()
 
     if scale == 'F':
-        temp = (temp - 32) * 5.0 / 9.0
+        temp = round((int(temp) - 32) * 5.0 / 9.0, 1)
         scale = 'C'
 
-    print(loc, condition, temp, scale)
+    report = WeatherReport(condition=condition, temperature=temp, unit=scale, location=loc)
+
+    return report
 
 
-def display_forecast():
-    pass
+def display_forecast(report):
+    print('Location: {}'.format(report.location))
+    print('Weather: {}'.format(report.condition))
+    print('Temperature: {}'.format(report.temperature))
+    print('Unit: {}'.format(report.unit))
+
+    #print (report)
 
 
 def main():
     print_header()
     get_zipcode()
     html = get_html()
-    parse_html(html)
-    display_forecast()
+    report = parse_html(html)
+    display_forecast(report)
 
 
 if __name__ == '__main__':
